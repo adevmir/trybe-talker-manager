@@ -8,6 +8,7 @@ app.use(bodyParser.json());
 
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
+const emailRegex = /^\w+(\[\+\.-\]?\w)*@\w+(\[\.-\]?\w+)*\.[a-z]+$/i;
 
 // não remova esse endpoint, e para o avaliador funcionar 
 app.get('/', (_request, response) => {
@@ -30,8 +31,18 @@ app.get('/talker/:id', async (req, res) => {
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  if ([email, password].includes(undefined)) {
-    return res.status(401).json({ message: 'missing fields' });
+  const valid = emailRegex.test(email);
+  if ([email].includes(undefined)) {
+    return res.status(400).json({ message: 'O campo "email" é obrigatório' });
+  }
+  if (!valid) {
+    return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"' });
+  }
+  if ([password].includes(undefined)) {
+    return res.status(400).json({ message: 'O campo "password" é obrigatório' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'O "password" deve ter pelo menos 6 caracteres' });
   }
   const token = crypto.randomBytes(8).toString('hex');
   res.status(200).json({ token });
