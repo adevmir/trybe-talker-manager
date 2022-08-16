@@ -98,6 +98,18 @@ async (req, res) => {
   res.status(200).json(talkers[i]);
 });
 
+app.delete('/talker/:id',
+authMiddleware,
+async (req, res) => {
+  const { id } = req.params;
+  const talkers = await getTalkers();
+  const i = talkers.findIndex((item) => item.id === Number(id));
+  talkers.splice(i, 1);
+  await setTalkers(talkers);
+
+  res.status(204).json();
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });
