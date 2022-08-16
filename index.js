@@ -77,6 +77,27 @@ async (req, res) => {
   res.status(201).json(user);
 });
 
+app.put('/talker/:id',
+authMiddleware,
+nameMiddleware,
+ageMiddleware,
+talkMiddleware,
+watchedMiddleware,
+rateMiddleware,
+async (req, res) => {
+  const { id } = req.params;
+  const { age, name, talk: { watchedAt, rate } } = req.body;
+  const talkers = await getTalkers();
+  const i = talkers.findIndex((item) => item.id === Number(id));
+  talkers[i].age = age;
+  talkers[i].name = name;
+  talkers[i].talk.watchedAt = watchedAt;
+  talkers[i].talk.rate = rate;
+  await setTalkers(talkers);
+
+  res.status(200).json(talkers[i]);
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });
