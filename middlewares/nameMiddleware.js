@@ -1,6 +1,6 @@
 module.exports = (req, res, next) => {
     const { name } = req.body;
-    if ([name].includes(undefined)) {
+    if (name === undefined) {
         return res.status(400).json({ message: 'O campo "name" é obrigatório' });
       }
     if (name.length <= 3) {

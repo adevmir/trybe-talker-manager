@@ -24,30 +24,43 @@ app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
+app.get('/talker/search',
+authMiddleware,
+async (req, res) => {
+  const { q } = req.query;
+  const talkers = await getTalkers();
+  if (q === undefined) return res.status(200).json(talkers);
+  const filteredTalkers = talkers.filter((talker) => talker.name.includes(q));
+  
+  res.status(200).json(filteredTalkers);
+});
+
 app.get('/talker', async (_req, res) => {
-  const dados = await fs.readFile('./talker.json', 'utf-8');
-  if (!dados) return res.status(200).json([]);
-  res.status(200).json(JSON.parse(dados));
+  const talkers = await fs.readFile('./talker.json', 'utf-8');
+  if (talkers === undefined) return res.status(200).json([]);
+  res.status(200).json(JSON.parse(talkers));
 });
 
 app.get('/talker/:id', async (req, res) => {
   const { id } = req.params;
   const dados = await fs.readFile('./talker.json', 'utf-8');
   const user = JSON.parse(dados).find((item) => item.id === Number(id));
-  if (!user) return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  if (user === undefined) {
+    return res.status(404).json({ message: 'Pessoa palestrante não encontrada' }); 
+  }
   res.status(200).json(user);
 });
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const valid = emailRegex.test(email);
-  if ([email].includes(undefined)) {
+  if (email === undefined) {
     return res.status(400).json({ message: 'O campo "email" é obrigatório' });
   }
-  if (!valid) {
+  if (valid === undefined) {
     return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"' });
   }
-  if ([password].includes(undefined)) {
+  if (password === undefined) {
     return res.status(400).json({ message: 'O campo "password" é obrigatório' });
   }
   if (password.length < 6) {
