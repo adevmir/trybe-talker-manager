@@ -57,7 +57,7 @@ app.post('/login', (req, res) => {
   if (email === undefined) {
     return res.status(400).json({ message: 'O campo "email" é obrigatório' });
   }
-  if (valid === undefined) {
+  if (!valid) {
     return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"' });
   }
   if (password === undefined) {
