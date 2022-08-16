@@ -1,7 +1,16 @@
+/* eslint-disable complexity */
+/* eslint-disable max-lines-per-function */
 const express = require('express');
 const fs = require('fs/promises');
 const crypto = require('crypto');
 const bodyParser = require('body-parser');
+const authMiddleware = require('./middlewares/authMiddleware');
+const nameMiddleware = require('./middlewares/nameMiddleware');
+const ageMiddleware = require('./middlewares/ageMiddleware');
+const watchedMiddleware = require('./middlewares/watchedMiddleware');
+const rateMiddleware = require('./middlewares/rateMiddleware');
+const talkMiddleware = require('./middlewares/talkMiddleware');
+const { getTalkers, setTalkers } = require('./fs-utils');
 
 const app = express();
 app.use(bodyParser.json());
@@ -46,6 +55,26 @@ app.post('/login', (req, res) => {
   }
   const token = crypto.randomBytes(8).toString('hex');
   res.status(200).json({ token });
+});
+
+app.post('/talker',
+authMiddleware,
+nameMiddleware,
+ageMiddleware,
+watchedMiddleware,
+rateMiddleware,
+talkMiddleware,
+async (req, res) => {
+  const { age, name, talk: { watchedAt, rate } } = req.body;
+  const talkers = await getTalkers();
+  const talkersQuant = talkers.length - 1;
+  const lastTalker = talkers[talkersQuant];
+  const proxId = lastTalker.id + 1;
+  const user = { id: proxId, age, name, talk: { watchedAt, rate } };
+  talkers.push(user);
+  await setTalkers(talkers);
+
+  res.status(201).json(user);
 });
 
 app.listen(PORT, () => {
