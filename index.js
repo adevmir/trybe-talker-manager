@@ -61,9 +61,9 @@ app.post('/talker',
 authMiddleware,
 nameMiddleware,
 ageMiddleware,
+talkMiddleware,
 watchedMiddleware,
 rateMiddleware,
-talkMiddleware,
 async (req, res) => {
   const { age, name, talk: { watchedAt, rate } } = req.body;
   const talkers = await getTalkers();
